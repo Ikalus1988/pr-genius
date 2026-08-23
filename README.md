@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: zsxh1990/pr-genius/.github/actions/pr-genius-check@main
+      - uses: zsxh1990/pr-genius/.github/actions/pr-genius-check@v1
         id: pr-genius
         with:
           title: ${{ github.event.pull_request.title }}
@@ -128,6 +128,14 @@ jobs:
               body: `## ${emoji} PR Genius: ${tier}`
             });
 ```
+
+### Version Auto-Update
+
+- **`@v1`** — Always points to the latest `v1.x.x` release (recommended)
+- **`@v1.7.1`** — Pinned to specific version (for reproducibility)
+- **`@main`** — Latest development version (not recommended for production)
+
+The `v1` tag is automatically updated when a new version is published to PyPI.
 
 ## 🤖 MCP Configuration
 

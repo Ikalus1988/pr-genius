@@ -52,3 +52,9 @@ jobs:
         # `packages-dir` is relative to GITHUB_WORKSPACE (= repo root),
         # so `prgenius/dist` resolves correctly without step-level
         # `working-directory` (which is run-step-only and conflicts with `uses:`).
+
+      - name: Update major version tag
+        if: startsWith(github.ref, 'refs/tags/v1.')
+        run: |
+          git tag -f v1 ${{ github.ref_name }}
+          git push origin v1 --force
