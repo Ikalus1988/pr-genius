@@ -10,6 +10,18 @@ trigger_keywords:
   - "please test"
   - "no tests"
 fix_action: "为每个功能/修复添加对应的测试。新功能需要单元测试，bug 修复需要回归测试"
+fix_example: |
+  def test_new_feature():
+      result = my_function(input_data)
+      assert result == expected_output
+
+  def test_edge_case_empty_input():
+      with pytest.raises(ValueError):
+          my_function("")
+
+  def test_regression_issue_123():
+      # Bug: function crashed on None input
+      assert my_function(None) is None
 source_pr: ""
 severity: high
 evidence:

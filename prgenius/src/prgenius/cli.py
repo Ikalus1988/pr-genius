@@ -187,6 +187,11 @@ def cmd_coach(args) -> int:
                 print(f"  {sev_icon} {s['description']}")
                 if s.get("fix_action"):
                     print(f"     → {s['fix_action']}")
+                if s.get("suggested_fix"):
+                    print(f"     ```")
+                    for fix_line in s["suggested_fix"].split("\n"):
+                        print(f"     {fix_line}")
+                    print(f"     ```")
             print()
 
         if result["checklist"]:
@@ -195,6 +200,11 @@ def cmd_coach(args) -> int:
                 print("📋 待修复:")
                 for item in undone:
                     print(f"  [{item['priority']}] {item['hint']}")
+                    if item.get("suggested_fix"):
+                        print(f"       ```")
+                        for fix_line in item["suggested_fix"].split("\n"):
+                            print(f"       {fix_line}")
+                        print(f"       ```")
                 print()
 
         if passed:

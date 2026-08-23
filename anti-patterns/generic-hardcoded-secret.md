@@ -8,6 +8,10 @@ trigger_keywords:
   - "hardcoded secret"
   - "hardcoded password"
 fix_action: "1) Remove secret; 2) Use environment variable"
+fix_example: |
+  - API_KEY = "sk-proj-abc123xyz"
+  + import os
+  + API_KEY = os.environ["API_KEY"]
 created: 2026-07-29
 severity: critical
 source_url: https://github.com/zsxh1990/pr-genius/tree/main/anti-patterns/generic-hardcoded-secret.md
