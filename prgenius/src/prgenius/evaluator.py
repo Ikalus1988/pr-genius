@@ -955,7 +955,15 @@ def analyze_pr(
             "neutral": signals_neu,
         },
         "checklist": checklist,
-        "anti_patterns_hit": [m["key"] for m in anti_matches],
+        "anti_patterns_hit": [
+            {
+                "key": m["key"],
+                "description": m.get("symptom", m.get("keyword", "")),
+                "severity": m.get("confidence", "medium"),
+                "fix_action": m.get("fix_action", ""),
+            }
+            for m in anti_matches
+        ],
         "anti_patterns_detail": anti_matches,
         "repo_context": repo_context,
         "comparison": comparison,
