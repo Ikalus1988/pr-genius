@@ -18,6 +18,32 @@ GitHub tag/release compare links per Keep a Changelog guidance.
 
 （无）
 
+## [1.7.2] — Docker Image & Bug Fixes
+
+### Added
+- **Docker Image**: Publish to GitHub Container Registry (GHCR)
+- **GitHub Action**: Docker-based action with `docker://ghcr.io/zsxh1990/pr-genius:latest`
+- **Auto-update**: Dependabot/Renovate support for Docker image version tracking
+- **entrypoint.sh**: GitHub Action entry point supporting both CLI and Action modes
+
+### Fixed
+- **anti_patterns_hit**: Returns object array instead of string array (#28)
+  - Now returns `[{key, description, severity, fix_action}]` as documented
+
+### Changed
+- **Version tags**: `v1` tag always points to latest `v1.x.x` release
+- **publish-ghcr.yml**: Automated GHCR publishing on release
+
+## [1.7.1] — suggested_fix Feature
+
+### Added
+- **suggested_fix**: Anti-patterns now include concrete code fix examples
+- **YAML block scalar**: Support multiline `fix_example` with `|` syntax
+- **CLI rendering**: Coach output displays suggested fixes as code blocks
+
+### Fixed
+- **ISSUE_LINK_RE**: Fixed false positive on "fixes formatting" without issue number
+
 ## [1.7.0] — Evidence Pipeline
 
 ### Added
