@@ -8,6 +8,31 @@ All notable changes to PR Genius will be documented in this file.
 
 Format based on [Keep a Changelog](https://keepachlang.com/en/1.1.0/).
 
+## [1.7.1] - 2026-08-23
+
+### Added
+- **suggested_fix**: coach output now includes concrete code fix examples for anti-patterns with `fix_example` field
+- YAML block scalar (`|`) support in anti-pattern frontmatter parser
+- 3 anti-patterns with fix examples: hardcoded-secret, large-pr, missing-test-coverage
+- Expanded issue link regex: `references #N`, `related to #N`
+
+### Fixed
+- ISSUE_LINK_RE false positive: bare "fixes formatting" no longer triggers issue link detection
+- Checklist `suggested_fix` now uses code-block fencing (consistent with signal section)
+- Extracted `_save_frontmatter_value` helper to eliminate duplicated YAML parser save logic
+
+## [1.7.0] - 2026-08-22
+
+### Added
+- 22 new review cases + 4 anti-patterns (knowledge base expansion)
+- Multi-parser silent fallback lesson (lesson-22)
+- Roadmap Phase 7-9 milestones
+
+### Fixed
+- Issue link regex expanded to accept more formats
+- Fork PR permissions: switched to `pull_request_target`
+- YAML validation errors in anti-pattern frontmatter
+
 ## [1.6.3] - 2026-08-17
 
 ### Added
