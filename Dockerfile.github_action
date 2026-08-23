@@ -23,7 +23,6 @@ COPY anti-patterns/ ./anti-patterns/
 COPY success-patterns/ ./success-patterns/
 COPY docs/ ./docs/
 COPY index.md validate.py ./
-COPY *.md ./*.md ./ 2>/dev/null || true
 
 # Copy entrypoint
 COPY github_action/entrypoint.sh /entrypoint.sh
