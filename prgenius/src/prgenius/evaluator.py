@@ -47,7 +47,7 @@ BOT_AUTHORS = {
 
 # Issue 关联正则
 ISSUE_LINK_RE = re.compile(
-    r"(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?|references?|related\s+to)\s+#\d+",
+    r"(?:fix(?:es|ed)?|close[sd]?|resolve[sd]?|references?|related\s+to)\s+?",
     re.IGNORECASE,
 )
 
@@ -213,14 +213,6 @@ def _parse_label(label: str) -> Tuple[str, str]:
 _anti_patterns_cache: Dict[str, Dict[str, dict]] = {}
 _success_patterns_cache: Dict[str, Dict[str, dict]] = {}
 
-def _save_frontmatter_value(fm: dict, key: str, value: list, in_list: bool, in_block: bool) -> None:
-    """Save a parsed frontmatter key-value pair into fm dict."""
-    if in_block:
-        fm[key] = '\n'.join(value)
-    else:
-        fm[key] = value if in_list else ' '.join(value).strip()
-
-
 def load_anti_patterns(repo_root) -> Dict[str, dict]:
     # v1.4.0 修复: 接受 str | Path (MCP smoke test 发现)
     repo_root = Path(repo_root) if not isinstance(repo_root, Path) else repo_root
@@ -244,22 +236,16 @@ def load_anti_patterns(repo_root) -> Dict[str, dict]:
             current_key = None
             current_value = []
             in_list = False
-            in_block = False  # YAML block scalar (|)
             for line in match.group(1).strip().split("\n"):
                 if re.match(r'^[a-zA-Z_]+:', line) and not line.startswith('  '):
                     if current_key:
-                        _save_frontmatter_value(fm, current_key, current_value, in_list, in_block)
+                        fm[current_key] = current_value if in_list else ' '.join(current_value).strip()
                     key, value = line.split(":", 1)
                     current_key = key.strip()
                     value = value.strip()
-                    in_block = False
                     if value == '':
                         current_value = []
                         in_list = True
-                    elif value == '|':
-                        current_value = []
-                        in_list = False
-                        in_block = True
                     elif value.startswith('['):
                         current_value = [v.strip().strip('"') for v in value[1:-1].split(",")]
                         in_list = False
@@ -269,13 +255,9 @@ def load_anti_patterns(repo_root) -> Dict[str, dict]:
                 elif line.startswith('  - ') and in_list:
                     current_value.append(line[4:].strip().strip('"'))
                 elif line.startswith('  ') and not in_list:
-                    if in_block:
-                        # Block scalar: strip YAML indent (first 2 spaces), preserve rest
-                        current_value.append(line[2:] if line.startswith('  ') else line)
-                    else:
-                        current_value.append(line.strip())
+                    current_value.append(line.strip())
             if current_key:
-                _save_frontmatter_value(fm, current_key, current_value, in_list, in_block)
+                fm[current_key] = current_value if in_list else ' '.join(current_value).strip()
             patterns[file.stem] = fm
         except Exception:
             continue
@@ -387,7 +369,6 @@ def check_anti_patterns(title: str, description: str, repo: str, repo_root, body
                         "key": key, "keyword": keyword,
                         "symptom": pattern.get("symptom", ""),
                         "fix_action": pattern.get("fix_action", ""),
-                        "fix_example": pattern.get("fix_example", ""),
                         "source_pr": pattern.get("source_pr", ""),
                         "source_url": pattern.get("source_url", ""),
                         "updated": pattern.get("updated", ""),
@@ -402,7 +383,6 @@ def check_anti_patterns(title: str, description: str, repo: str, repo_root, body
                 matches.append({
                     "key": key, "symptom": symptom,
                     "fix_action": pattern.get("fix_action", ""),
-                    "fix_example": pattern.get("fix_example", ""),
                     "source_pr": pattern.get("source_pr", ""),
                     "source_url": pattern.get("source_url", ""),
                     "updated": pattern.get("updated", ""),
@@ -585,7 +565,6 @@ def analyze_pr(
         severity = ANTI_PATTERN_SEVERITY.get(key, "medium")
         symptom = match.get("symptom", "")
         fix_action = match.get("fix_action", "")
-        fix_example = match.get("fix_example", "")
         source_pr = match.get("source_pr", "")
 
         # 建设性信号描述: 症状 + 改进方向 + 案例来源
@@ -599,27 +578,20 @@ def analyze_pr(
         if source_pr:
             desc_parts.append(f"(参考: {source_pr})")
 
-        signal = {
+        signals_neg.append({
             "key": key,
             "description": " | ".join(desc_parts),
             "severity": severity,
             "fix_action": fix_action,
             "source_pr": source_pr,
-        }
-        if fix_example:
-            signal["suggested_fix"] = fix_example
-        signals_neg.append(signal)
-
-        checklist_item = {
-            "action": f"fix_{key}",
-            "priority": "P0" if severity in ("critical", "high") else "P1",
-            "done": False,
-            "hint": fix_action,
-        }
-        if fix_example:
-            checklist_item["suggested_fix"] = fix_example
+        })
         if fix_action:
-            checklist.append(checklist_item)
+            checklist.append({
+                "action": f"fix_{key}",
+                "priority": "P0" if severity in ("critical", "high") else "P1",
+                "done": False,
+                "hint": fix_action,
+            })
 
     # ---- 3. 标签信号 ----
     negative_labels = []
@@ -955,15 +927,7 @@ def analyze_pr(
             "neutral": signals_neu,
         },
         "checklist": checklist,
-        "anti_patterns_hit": [
-            {
-                "key": m["key"],
-                "description": m.get("symptom", m.get("keyword", "")),
-                "severity": m.get("confidence", "medium"),
-                "fix_action": m.get("fix_action", ""),
-            }
-            for m in anti_matches
-        ],
+        "anti_patterns_hit": [m["key"] for m in anti_matches],
         "anti_patterns_detail": anti_matches,
         "repo_context": repo_context,
         "comparison": comparison,
