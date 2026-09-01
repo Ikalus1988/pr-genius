@@ -1,3 +1,8 @@
+---
+title: PR Genius Agent Guidelines
+type: agent-guide
+---
+
 # PR Genius — Agent Guidelines
 
 ## Project Overview
