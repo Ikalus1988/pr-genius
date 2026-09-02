@@ -16,7 +16,12 @@ GitHub tag/release compare links per Keep a Changelog guidance.
 
 ## [Unreleased]
 
-（无）
+### Added
+- **PR Genius Check action**: `comment_mode` input (`never` / `high_risk` /
+  `always`) — post the full analysis as a visible PR comment, mirroring
+  pr-agent's `/review`. Existing comments are updated in place via a
+  `<!-- pr-genius:report -->` marker (no comment spam on repeated syncs).
+  Legacy `comment_on_high_risk: true` still works (acts as `high_risk`).
 
 ## [1.7.2] — Docker Image & Bug Fixes
 
